@@ -2,7 +2,7 @@
 
 ## 🎉 What is Beam?
 
-Beam is a Social Impact Startup based out of London, UK. We guide homeless people into jobs and homes, and help them to raise funds for things like laptops (for job hunting) or rental deposits (for homes).
+Beam is a social impact technology company based in London, UK. We build AI-powered software for workers on the frontline of welfare services and deliver AI-powered, human-centred services directly to homeless people, refugees and prison leavers and other underserved groups. 
 
 ## 🧑‍💻 Wanna help?
 
