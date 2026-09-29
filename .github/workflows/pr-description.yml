@@ -21,7 +21,7 @@ jobs:
             const TEMPLATE_URL = "https://github.com/wearebeam/.github/blob/main/pull_request_template.md";
             const MAX_LINES = 40;
             const MAX_WORDS = 500;
-            const HEADER = /^\*\*([^*]+)\*\*:?$/;
+            const HEADER = /^(?:#{1,6}\s+(.+)|\*\*([^*]+)\*\*:?)$/;
             const NON_PROSE = /^(!\[|<img|<video|<details|<\/details|<summary|<\/summary|https?:\/\/\S+$)/;
 
             const prose = (pr.body || "")
@@ -30,8 +30,13 @@ jobs:
               .map((line) => line.trim())
               .filter((line) => line && !NON_PROSE.test(line));
 
-            const headerIndex = (name) =>
-              prose.findIndex((line) => HEADER.exec(line)?.[1].trim().toLowerCase() === name);
+            const headerName = (line) => {
+              const match = HEADER.exec(line);
+              if (!match) return null;
+              return (match[1] ?? match[2]).replace(/\*/g, "").replace(/:$/, "").trim().toLowerCase();
+            };
+
+            const headerIndex = (name) => prose.findIndex((line) => headerName(line) === name);
 
             const sectionHasContent = (start) => {
               const rest = prose.slice(start + 1);
@@ -43,10 +48,10 @@ jobs:
             const whatIndex = headerIndex("what");
             const whyIndex = headerIndex("why");
 
-            if (whatIndex === -1) problems.push("Missing a bold **What** section.");
+            if (whatIndex === -1) problems.push("Missing a **What** section.");
             else if (!sectionHasContent(whatIndex)) problems.push("The **What** section is empty.");
 
-            if (whyIndex === -1) problems.push("Missing a bold **Why** section.");
+            if (whyIndex === -1) problems.push("Missing a **Why** section.");
             else if (!sectionHasContent(whyIndex)) problems.push("The **Why** section is empty.");
 
             if (whatIndex !== -1 && whyIndex !== -1 && whyIndex < whatIndex) {
