@@ -1,0 +1,80 @@
+name: PR description
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+  merge_group:
+
+permissions: {}
+
+jobs:
+  check:
+    name: PR description
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr || pr.draft || pr.user.type === "Bot") return;
+
+            const TEMPLATE_URL = "https://github.com/wearebeam/.github/blob/main/pull_request_template.md";
+            const MAX_LINES = 40;
+            const MAX_WORDS = 500;
+            const HEADER = /^(?:#{1,6}\s+(.+)|\*\*([^*]+)\*\*:?)$/;
+            const NON_PROSE = /^(!\[|<img|<video|<details|<\/details|<summary|<\/summary|https?:\/\/\S+$)/;
+
+            const prose = (pr.body || "")
+              .replace(/<!--[\s\S]*?-->/g, "")
+              .split("\n")
+              .map((line) => line.trim())
+              .filter((line) => line && !NON_PROSE.test(line));
+
+            const headerName = (line) => {
+              const match = HEADER.exec(line);
+              if (!match) return null;
+              return (match[1] ?? match[2]).replace(/\*/g, "").replace(/:$/, "").trim().toLowerCase();
+            };
+
+            const headerIndex = (name) => prose.findIndex((line) => headerName(line) === name);
+
+            const sectionHasContent = (start) => {
+              const rest = prose.slice(start + 1);
+              const end = rest.findIndex((line) => HEADER.test(line));
+              return (end === -1 ? rest : rest.slice(0, end)).length > 0;
+            };
+
+            const problems = [];
+            const whatIndex = headerIndex("what");
+            const whyIndex = headerIndex("why");
+
+            if (whatIndex === -1) problems.push("Missing a **What** section.");
+            else if (!sectionHasContent(whatIndex)) problems.push("The **What** section is empty.");
+
+            if (whyIndex === -1) problems.push("Missing a **Why** section.");
+            else if (!sectionHasContent(whyIndex)) problems.push("The **Why** section is empty.");
+
+            if (whatIndex !== -1 && whyIndex !== -1 && whyIndex < whatIndex) {
+              problems.push("**What** must come before **Why**.");
+            }
+
+            const words = prose.join(" ").split(/\s+/).filter(Boolean).length;
+            if (prose.length > MAX_LINES || words > MAX_WORDS) {
+              problems.push(
+                `The description is ${prose.length} lines / ${words} words (max ${MAX_LINES} lines or ${MAX_WORDS} words, not counting images or comments). Make it shorter, or split the PR.`
+              );
+            }
+
+            if (problems.length === 0) return;
+
+            const message = [
+              "This PR description doesn't follow the wearebeam format:",
+              ...problems.map((problem) => `- ${problem}`),
+              "",
+              "Fix: edit the PR description to use bold **What** and **Why** sections, max 3 bullets or 2-3 short sentences each. Describe the outcome, not the list of code changes. Put the ticket in the title, e.g. [COR-123]. No AI attribution.",
+              `Template and full rules: ${TEMPLATE_URL}`,
+              "Editing the description re-runs this check.",
+            ].join("\n");
+
+            await core.summary.addRaw(message).write();
+            core.setFailed(message);
