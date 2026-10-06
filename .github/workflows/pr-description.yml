@@ -11,12 +11,19 @@ jobs:
   check:
     name: PR description
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
     steps:
       - uses: actions/github-script@v8
         with:
           script: |
-            const pr = context.payload.pull_request;
-            if (!pr || pr.draft || pr.user.type === "Bot") return;
+            if (!context.payload.pull_request) return;
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+            });
+            if (pr.draft || pr.user.type === "Bot") return;
 
             const TEMPLATE_URL = "https://github.com/wearebeam/.github/blob/main/pull_request_template.md";
             const MAX_LINES = 40;
