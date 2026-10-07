@@ -5,7 +5,8 @@ on:
     types: [opened, edited, reopened, synchronize, ready_for_review]
   merge_group:
 
-permissions: {}
+permissions:
+  pull-requests: read
 
 jobs:
   check:
@@ -15,8 +16,14 @@ jobs:
       - uses: actions/github-script@v8
         with:
           script: |
-            const pr = context.payload.pull_request;
-            if (!pr || pr.draft || pr.user.type === "Bot") return;
+            const event = context.payload.pull_request;
+            if (!event) return;
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: event.number,
+            });
+            if (pr.draft || pr.user.type === "Bot") return;
 
             const TEMPLATE_URL = "https://github.com/wearebeam/.github/blob/main/pull_request_template.md";
             const MAX_LINES = 40;
@@ -73,7 +80,7 @@ jobs:
               "",
               "Fix: edit the PR description to use bold **What** and **Why** sections, max 3 bullets or 2-3 short sentences each. Describe the outcome, not the list of code changes. Put the ticket in the title, e.g. [COR-123]. No AI attribution.",
               `Template and full rules: ${TEMPLATE_URL}`,
-              "Editing the description re-runs this check.",
+              "Edit the description, then re-run this check.",
             ].join("\n");
 
             await core.summary.addRaw(message).write();
