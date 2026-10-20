@@ -3,8 +3,7 @@ Bold What / Why only, max 3 bullets or 2-3 short sentences each. One idea per bu
 Outcome, not a list of code changes: the diff is the inventory.
 No "Summary" / "Changes" / "Test plan" sections. CI is the test evidence.
 Describe the final state only. No PR history, no agent changes of direction, only tradeoffs against the original requirements.
-Ticket goes in the title, e.g. [COR-123]. No AI attribution.
-Keep it under 40 lines or 500 words. If you need more, split the PR. -->
+Ticket goes in the title, e.g. [COR-123]. No AI attribution. -->
 
 **What**
 

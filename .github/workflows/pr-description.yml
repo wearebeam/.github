@@ -26,8 +26,6 @@ jobs:
             if (pr.draft || pr.user.type === "Bot") return;
 
             const TEMPLATE_URL = "https://github.com/wearebeam/.github/blob/main/pull_request_template.md";
-            const MAX_LINES = 40;
-            const MAX_WORDS = 500;
             const HEADER = /^(?:#{1,6}\s+(.+)|\*\*([^*]+)\*\*:?)$/;
             const NON_PROSE = /^(!\[|<img|<video|<details|<\/details|<summary|<\/summary|https?:\/\/\S+$)/;
 
@@ -60,17 +58,6 @@ jobs:
 
             if (whyIndex === -1) problems.push("Missing a **Why** section.");
             else if (!sectionHasContent(whyIndex)) problems.push("The **Why** section is empty.");
-
-            if (whatIndex !== -1 && whyIndex !== -1 && whyIndex < whatIndex) {
-              problems.push("**What** must come before **Why**.");
-            }
-
-            const words = prose.join(" ").split(/\s+/).filter(Boolean).length;
-            if (prose.length > MAX_LINES || words > MAX_WORDS) {
-              problems.push(
-                `The description is ${prose.length} lines / ${words} words (max ${MAX_LINES} lines or ${MAX_WORDS} words, not counting images or comments). Make it shorter, or split the PR.`
-              );
-            }
 
             if (problems.length === 0) return;
 
