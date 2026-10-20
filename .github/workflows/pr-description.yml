@@ -27,7 +27,7 @@ jobs:
 
             const TEMPLATE_URL = "https://github.com/wearebeam/.github/blob/main/pull_request_template.md";
             const HEADER = /^(?:#{1,6}\s+(.+)|\*\*([^*]+)\*\*:?)$/;
-            const NON_PROSE = /^(!\[|<img|<video|<details|<\/details|<summary|<\/summary|https?:\/\/\S+$)/;
+            const NON_PROSE = /^(!\[|<img|<video|<details|<\/details|<summary|<\/summary|https?:\/\/\S+$|\[[^\]]+\]\(https?:\/\/\S+\)$)/;
 
             const prose = (pr.body || "")
               .replace(/<!--[\s\S]*?-->/g, "")
@@ -65,7 +65,7 @@ jobs:
               "This PR description doesn't follow the wearebeam format:",
               ...problems.map((problem) => `- ${problem}`),
               "",
-              "Fix: edit the PR description to use bold **What** and **Why** sections, max 3 bullets or 2-3 short sentences each. Describe the outcome, not the list of code changes. Put the ticket in the title, e.g. [COR-123]. No AI attribution.",
+              "Fix: edit the PR description to use bold **What** and **Why** sections, max 3 bullets or 2-3 short sentences each. Describe the outcome, not the list of code changes. Finish with the linked ticket, e.g. [COR-123](https://linear.app/beamazing/issue/COR-123). No AI attribution.",
               `Template and full rules: ${TEMPLATE_URL}`,
               "Edit the description, then re-run this check.",
             ].join("\n");

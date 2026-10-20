@@ -3,7 +3,7 @@ Bold What / Why only, max 3 bullets or 2-3 short sentences each. One idea per bu
 Outcome, not a list of code changes: the diff is the inventory.
 No "Summary" / "Changes" / "Test plan" sections. CI is the test evidence.
 Describe the final state only. No PR history, no agent changes of direction, only tradeoffs against the original requirements.
-Ticket goes in the title, e.g. [COR-123]. No AI attribution. -->
+Finish with the linked ticket, e.g. [COR-123](https://linear.app/beamazing/issue/COR-123). No AI attribution. -->
 
 **What**
 
@@ -22,3 +22,5 @@ Ticket goes in the title, e.g. [COR-123]. No AI attribution. -->
 <!-- Deliberately left something out? One line: "Not in scope: X, follows in COR-124." -->
 
 <!-- Stacked PR? Put one line at the very top: "2/3, stacked on #123, context in #100." -->
+
+[COR-XXX](https://linear.app/beamazing/issue/COR-XXX)
