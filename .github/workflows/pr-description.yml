@@ -78,7 +78,7 @@ jobs:
               "This PR description doesn't follow the wearebeam format:",
               ...problems.map((problem) => `- ${problem}`),
               "",
-              "Fix: edit the PR description to use `#### What` and `#### Why` sections, one sentence each. Describe the outcome, not the list of code changes. Link the ticket on the last line, not in the title. No AI attribution.",
+              "Fix: edit the PR description to use `#### What` and `#### Why` sections, one sentence each by default. Describe the outcome, not the list of code changes. Link the ticket, when there is one, on the last line instead of in the title. No AI attribution.",
               `Guide: ${GUIDE_URL}`,
               "Edit the description, then re-run this check.",
             ].join("\n");
