@@ -30,12 +30,15 @@ jobs:
             const MAX_WORDS = 500;
             const HEADER = /^(?:#{1,6}\s+(.+)|\*\*([^*]+)\*\*:?)$/;
             const NON_PROSE = /^(!\[|<img|<video|<details|<\/details|<summary|<\/summary|https?:\/\/\S+$)/;
+            // Table rows left with only pipes, dashes and colons once images are removed
+            const TABLE_SCAFFOLD = /^[|:\-\s]+$/;
 
             const prose = (pr.body || "")
               .replace(/<!--[\s\S]*?-->/g, "")
+              .replace(/<img\b[^>]*>|!\[[^\]]*\]\([^)]*\)/g, "")
               .split("\n")
               .map((line) => line.trim())
-              .filter((line) => line && !NON_PROSE.test(line));
+              .filter((line) => line && !NON_PROSE.test(line) && !TABLE_SCAFFOLD.test(line));
 
             const headerName = (line) => {
               const match = HEADER.exec(line);
