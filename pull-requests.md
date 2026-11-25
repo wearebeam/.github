@@ -15,7 +15,7 @@ One plain sentence on why it matters.
 ```
 
 - End with the linked Linear ticket, when there is one.
-- The org "PR description" check fails a description over 40 lines or 500 words, not counting images or comments. If it needs more, split the PR.
+- The org "PR description" check fails a description over 40 lines or 500 words, not counting images, comments or `<details>` blocks. If it needs more, split the PR.
 
 ## Title
 

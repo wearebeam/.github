@@ -33,8 +33,36 @@ jobs:
             // Table rows left with only pipes, dashes and colons once images are removed
             const TABLE_SCAFFOLD = /^[|:\-\s]+$/;
 
-            const prose = (pr.body || "")
-              .replace(/<!--[\s\S]*?-->/g, "")
+            const stripDetails = (text) => {
+              const ranges = [];
+              const openStarts = [];
+              const tokenRe = /```[\s\S]*?```|`[^`\n]+`|<(\/?)details\b[^>]*>/gi;
+              let match;
+              while ((match = tokenRe.exec(text)) !== null) {
+                if (match[0].startsWith("`")) {
+                  if (openStarts.length > 0) tokenRe.lastIndex = match.index + 1;
+                  continue;
+                }
+                if (match[1] === "/") {
+                  if (openStarts.length > 0) {
+                    const start = openStarts.pop();
+                    if (openStarts.length === 0) ranges.push([start, match.index + match[0].length]);
+                  }
+                } else {
+                  openStarts.push(match.index);
+                }
+              }
+              if (ranges.length === 0) return text;
+              let result = "";
+              let cursor = 0;
+              for (const [start, end] of ranges) {
+                result += text.slice(cursor, start);
+                cursor = end;
+              }
+              return result + text.slice(cursor);
+            };
+
+            const prose = stripDetails((pr.body || "").replace(/<!--[\s\S]*?-->/g, ""))
               .replace(/<img\b[^>]*>|!\[[^\]]*\]\([^)]*\)/g, "")
               .split("\n")
               .map((line) => line.trim())
@@ -71,7 +99,7 @@ jobs:
             const words = prose.join(" ").split(/\s+/).filter(Boolean).length;
             if (prose.length > MAX_LINES || words > MAX_WORDS) {
               problems.push(
-                `The description is ${prose.length} lines / ${words} words (max ${MAX_LINES} lines or ${MAX_WORDS} words, not counting images or comments). Make it shorter, or split the PR.`
+                `The description is ${prose.length} lines / ${words} words (max ${MAX_LINES} lines or ${MAX_WORDS} words, not counting images, comments or \`<details>\` blocks). Make it shorter, or split the PR.`
               );
             }
 
